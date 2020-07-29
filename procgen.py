@@ -9,7 +9,7 @@ import tile_types
 import tcod
 
 if TYPE_CHECKING:
-    from entity import Entity
+    from engine import Engine
 
 
 class RectangularRoom:

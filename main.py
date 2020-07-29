@@ -3,7 +3,6 @@ import copy
 
 from engine import Engine
 import entity_factories
-from input_handlers import EventHandler
 from procgen import generate_dungeon
 
 
@@ -27,22 +26,23 @@ def main() -> None:
     # Telling TCOD which font to use
     tileset = tcod.tileset.load_tilesheet('tileset.png', 32,8, tcod.tileset.CHARMAP_TCOD)
 
-    # creates an instance of the EventHandler class
-    event_handler = EventHandler()
-
     # initializing a player and npc and creating a set to hold them
     player = copy.deepcopy(entity_factories.player)
 
+    # initializing engine
+    engine = Engine(player=player)
+
     # initialize game map
-    game_map = generate_dungeon(max_rooms=max_rooms,
+    engine.game_map = generate_dungeon(
+                                max_rooms=max_rooms,
                                 room_min_size=room_min_size,
                                 room_max_size=room_max_size,
                                 map_width=map_width,
                                 map_height=map_height,
                                 max_monsters_per_room=max_monsters_per_room,
-                                player=player)
-    # initializing engine
-    engine = Engine(event_handler=event_handler, game_map=game_map, player=player)
+                                engine=engine
+    )
+    engine.update_fov()
 
     # Creating the screen, giving it width and height and other variables
     with tcod.context.new_terminal(
@@ -60,8 +60,7 @@ def main() -> None:
         while True:
             # runs engine
             engine.render(console=root_console, context=context)
-            events = tcod.event.wait()
-            engine.handle_events(events)
+            engine.event_handler.handle_events()
 
 
 if __name__ == "__main__":
